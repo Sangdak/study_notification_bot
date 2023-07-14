@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "study-notification-bot"
+version = "0.1.0"
+description = ""
+authors = ["Sangdak <82779027+Sangdak@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "study_notification_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+environs = "^9.5.0"
+python-telegram-bot = "~13"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
