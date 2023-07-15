@@ -30,24 +30,24 @@ def main():
             print(f'Some problem with connection. Wait 60 seconds before repeat.')
             time.sleep(60)
 
-        answer = response.json()
+        work_status_data = response.json()
 
-        if answer['status'] == 'found':
-            params['timestamp'] = answer['last_attempt_timestamp']
-            if answer['new_attempts'][0]['is_negative']:
+        if work_status_data['status'] == 'found':
+            params['timestamp'] = work_status_data['last_attempt_timestamp']
+            if work_status_data['new_attempts'][0]['is_negative']:
                 task_status = 'Работа требует доработки.'
             else:
                 task_status = 'Работа принята.'
 
             bot.send_message(
                 chat_id=tg_chat_id,
-                text=f'Преподаватель проверил работу: \"{answer["new_attempts"][0]["lesson_title"]}\".\n'
-                     f'{answer["new_attempts"][0]["lesson_url"]}\n'
+                text=f'Преподаватель проверил работу: \"{work_status_data["new_attempts"][0]["lesson_title"]}\".\n'
+                     f'{work_status_data["new_attempts"][0]["lesson_url"]}\n'
                      f'{task_status}',
             )
 
-        elif answer['status'] == 'timeout':
-            params['timestamp'] = answer['timestamp_to_request']
+        elif work_status_data['status'] == 'timeout':
+            params['timestamp'] = work_status_data['timestamp_to_request']
 
 
 if __name__ == '__main__':
