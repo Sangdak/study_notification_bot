@@ -4,25 +4,24 @@ from environs import Env
 import requests
 import telegram
 
-env = Env()
-env.read_env(override=True)
-
-
-DVMN_API_TOKEN = env.str('DVMN_TOKEN')
-API_LONG_POLLING_URL = 'https://dvmn.org/api/long_polling/'
-TG_BOT_TOKEN = env.str('TG_TOKEN')
-TG_CHAT_ID = env.str('TG_CHAT')
-
 
 def main():
-    bot = telegram.Bot(token=TG_BOT_TOKEN)
+    env = Env()
+    env.read_env(override=True)
 
-    headers = {'Authorization': f'Token {DVMN_API_TOKEN}'}
+    dvmn_api_token = env.str('DVMN_TOKEN')
+    api_long_polling_url = 'https://dvmn.org/api/long_polling/'
+    tg_bot_token = env.str('TG_TOKEN')
+    tg_chat_id = env.str('TG_CHAT')
+
+    bot = telegram.Bot(token=tg_bot_token)
+
+    headers = {'Authorization': f'Token {dvmn_api_token}'}
     params = {}
 
     while True:
         try:
-            response = requests.get(url=API_LONG_POLLING_URL, headers=headers, params=params)
+            response = requests.get(url=api_long_polling_url, headers=headers, params=params)
             response.raise_for_status()
 
         except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
@@ -38,7 +37,7 @@ def main():
                 task_status = 'Работа принята.'
 
             bot.send_message(
-                chat_id=TG_CHAT_ID,
+                chat_id=tg_chat_id,
                 text=f'Преподаватель проверил работу: \"{answer["new_attempts"][0]["lesson_title"]}\".\n'
                      f'{answer["new_attempts"][0]["lesson_url"]}\n'
                      f'{task_status}',
