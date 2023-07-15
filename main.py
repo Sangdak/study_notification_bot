@@ -1,4 +1,4 @@
-from pprint import pprint
+import time
 
 from environs import Env
 import requests
@@ -24,8 +24,11 @@ def main():
             response = requests.get(url=api_long_polling_url, headers=headers, params=params)
             response.raise_for_status()
 
-        except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
+        except requests.exceptions.ReadTimeout:
             continue
+        except requests.exceptions.ConnectionError:
+            print(f'Some problem with connection. Wait 60 seconds before repeat.')
+            time.sleep(60)
 
         answer = response.json()
 
