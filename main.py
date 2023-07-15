@@ -1,3 +1,4 @@
+import textwrap
 import time
 
 from environs import Env
@@ -39,11 +40,14 @@ def main():
             else:
                 task_status = 'Работа принята.'
 
+            message = f'''Преподаватель проверил работу: \"{work_status_data["new_attempts"][0]["lesson_title"]}\".
+                          {work_status_data["new_attempts"][0]["lesson_url"]}
+                          {task_status}
+                       '''
+
             bot.send_message(
                 chat_id=tg_chat_id,
-                text=f'Преподаватель проверил работу: \"{work_status_data["new_attempts"][0]["lesson_title"]}\".\n'
-                     f'{work_status_data["new_attempts"][0]["lesson_url"]}\n'
-                     f'{task_status}',
+                text=textwrap.dedent(message),
             )
 
         elif work_status_data['status'] == 'timeout':
