@@ -32,16 +32,17 @@ def main():
             time.sleep(60)
 
         work_status_data = response.json()
+        new_attempts_data = work_status_data["new_attempts"][0]
 
         if work_status_data['status'] == 'found':
             params['timestamp'] = work_status_data['last_attempt_timestamp']
-            if work_status_data['new_attempts'][0]['is_negative']:
+            if new_attempts_data['is_negative']:
                 task_status = 'Работа требует доработки.'
             else:
                 task_status = 'Работа принята.'
 
-            message = f'''Преподаватель проверил работу: \"{work_status_data["new_attempts"][0]["lesson_title"]}\".
-                          {work_status_data["new_attempts"][0]["lesson_url"]}
+            message = f'''Преподаватель проверил работу: \"{new_attempts_data["lesson_title"]}\".
+                          {new_attempts_data["lesson_url"]}
                           {task_status}
                        '''
 
