@@ -1,9 +1,14 @@
+import logging
 import textwrap
 import time
 
 from environs import Env
 import requests
 import telegram
+
+
+logging.basicConfig(level=logging.DEBUG)
+logging.debug('Сообщение уровня DeBUG')
 
 
 def main():
