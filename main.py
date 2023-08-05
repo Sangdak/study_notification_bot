@@ -7,8 +7,6 @@ import requests
 import telegram
 
 
-# logging.basicConfig(level=logging.INFO)
-# logging.info('Bot starting now')
 class TelegramLogsHandler(logging.Handler):
     def __init__(self, tg_bot, tg_chat_id):
         super().__init__()
@@ -44,19 +42,22 @@ def main():
         try:
             response = requests.get(url=api_long_polling_url, headers=headers, params=params)
             response.raise_for_status()
-
         except requests.exceptions.ReadTimeout:
             continue
         except requests.exceptions.ConnectionError as err:
             logger.error(err, exc_info=True)
             logger.error('Some problem with connection. Wait 60 seconds before repeat.')
-            # print(f'Some problem with connection. Wait 60 seconds before repeat.')
             time.sleep(60)
+        except KeyError:
+            continue
 
         work_status_data = response.json()
         new_attempts_data = work_status_data["new_attempts"][0]
 
+        # status_found = work_status_data.get('status')
+
         if work_status_data['status'] == 'found':
+        # if status_found == 'found':
             params['timestamp'] = work_status_data['last_attempt_timestamp']
             if new_attempts_data['is_negative']:
                 task_status = 'Работа требует доработки.'
