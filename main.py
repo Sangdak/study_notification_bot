@@ -39,43 +39,37 @@ def main():
     params = {}
 
     while True:
+        work_status_data = {}
         try:
             response = requests.get(url=api_long_polling_url, headers=headers, params=params)
             response.raise_for_status()
+            work_status_data = response.json()
+
+            print(work_status_data)
         except requests.exceptions.ReadTimeout:
             continue
         except requests.exceptions.ConnectionError as err:
             logger.error(err, exc_info=True)
             logger.error('Some problem with connection. Wait 60 seconds before repeat.')
             time.sleep(60)
-        except KeyError:
+
+        if work_status_data.get('status') == 'timeout':
+            params['timestamp'] = work_status_data['timestamp_to_request']
             continue
 
-        work_status_data = response.json()
-        new_attempts_data = work_status_data["new_attempts"][0]
-
-        # status_found = work_status_data.get('status')
-
-        if work_status_data['status'] == 'found':
-        # if status_found == 'found':
+        if work_status_data.get('status') == 'found':
             params['timestamp'] = work_status_data['last_attempt_timestamp']
-            if new_attempts_data['is_negative']:
-                task_status = 'Работа требует доработки.'
-            else:
-                task_status = 'Работа принята.'
+            new_attempts_data = work_status_data.get('new_attempts')[0]
+            task_status = 'Работа требует доработки.' if new_attempts_data['is_negative'] else 'Работа принята.'
 
-            message = f'''Преподаватель проверил работу: \"{new_attempts_data["lesson_title"]}\".
-            {new_attempts_data["lesson_url"]}
-            {task_status}
-            '''
+            message = f'Преподаватель проверил работу: \"{new_attempts_data["lesson_title"]}\". \
+                       {new_attempts_data["lesson_url"]} \
+                       {task_status}'
 
             tg_bot.send_message(
                 chat_id=tg_chat_id,
-                text=textwrap.dedent(message),
+                text=message,
             )
-
-        elif work_status_data['status'] == 'timeout':
-            params['timestamp'] = work_status_data['timestamp_to_request']
 
 
 if __name__ == '__main__':
