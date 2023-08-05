@@ -7,8 +7,17 @@ import requests
 import telegram
 
 
-logging.basicConfig(level=logging.DEBUG)
-logging.debug('Сообщение уровня DeBUG')
+# logging.basicConfig(level=logging.INFO)
+# logging.info('Bot starting now')
+class TelegramLogsHandler(logging.Handler):
+    def __init__(self, tg_bot, tg_chat_id):
+        super().__init__()
+        self.tg_bot = tg_bot
+        self.tg_chat_id = tg_chat_id
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.tg_chat_id, text=log_entry)
 
 
 def main():
@@ -20,7 +29,13 @@ def main():
     tg_bot_token = env.str('TG_TOKEN')
     tg_chat_id = env.str('TG_CHAT')
 
-    bot = telegram.Bot(token=tg_bot_token)
+    tg_bot = telegram.Bot(token=tg_bot_token)
+
+    logger = logging.getLogger('TG_Logger')
+    logger.setLevel(logging.INFO)
+    logger.addHandler(TelegramLogsHandler(tg_bot, tg_chat_id))
+
+    logger.info('Bot starting now')
 
     headers = {'Authorization': f'Token {dvmn_api_token}'}
     params = {}
@@ -32,8 +47,10 @@ def main():
 
         except requests.exceptions.ReadTimeout:
             continue
-        except requests.exceptions.ConnectionError:
-            print(f'Some problem with connection. Wait 60 seconds before repeat.')
+        except requests.exceptions.ConnectionError as err:
+            logger.error(err, exc_info=True)
+            logger.error('Some problem with connection. Wait 60 seconds before repeat.')
+            # print(f'Some problem with connection. Wait 60 seconds before repeat.')
             time.sleep(60)
 
         work_status_data = response.json()
@@ -47,11 +64,11 @@ def main():
                 task_status = 'Работа принята.'
 
             message = f'''Преподаватель проверил работу: \"{new_attempts_data["lesson_title"]}\".
-                          {new_attempts_data["lesson_url"]}
-                          {task_status}
-                       '''
+            {new_attempts_data["lesson_url"]}
+            {task_status}
+            '''
 
-            bot.send_message(
+            tg_bot.send_message(
                 chat_id=tg_chat_id,
                 text=textwrap.dedent(message),
             )
