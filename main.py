@@ -1,5 +1,4 @@
 import logging
-import textwrap
 import time
 
 from environs import Env
@@ -44,14 +43,14 @@ def main():
             response = requests.get(url=api_long_polling_url, headers=headers, params=params)
             response.raise_for_status()
             work_status_data = response.json()
-
-            print(work_status_data)
         except requests.exceptions.ReadTimeout:
             continue
-        except requests.exceptions.ConnectionError as err:
-            logger.error(err, exc_info=True)
+        except requests.exceptions.ConnectionError as connect_err:
+            logger.error(connect_err, exc_info=True)
             logger.error('Some problem with connection. Wait 60 seconds before repeat.')
             time.sleep(60)
+        except Exception as other_error:
+            logging.exception(other_error)
 
         if work_status_data.get('status') == 'timeout':
             params['timestamp'] = work_status_data['timestamp_to_request']
