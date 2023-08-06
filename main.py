@@ -24,7 +24,7 @@ def main():
     dvmn_api_token = env.str('DVMN_TOKEN')
     api_long_polling_url = 'https://dvmn.org/api/long_polling/'
     tg_bot_token = env.str('TG_TOKEN')
-    tg_chat_id = env.str('TG_CHAT')
+    tg_chat_id = env.str('TG_CHAT_ID')
 
     tg_bot = telegram.Bot(token=tg_bot_token)
 
