@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  telegram-bot:
+    container_name: bot
+#    working_dir: /study_notification_bot
+    restart: always
+    build:
+        context: .
+        dockerfile: Dockerfile
+    command: sh -c "python main.py"
+    ports:
+      - '8000:8000'
+    env_file:
+      - .env
