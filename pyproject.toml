@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Sangdak <82779027+Sangdak@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "study_notification_bot"}]
+#packages = [{include = "study_notification_bot"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
